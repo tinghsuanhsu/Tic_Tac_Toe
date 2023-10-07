@@ -80,10 +80,10 @@
 
 const grid = document.querySelector('.board-container');
 const playerBtn = document.querySelectorAll('.player');
-let playerOne = createPlayer('x');
-let playerTwo = createPlayer('o');
+// let playerOne = createPlayer('x');
+// let playerTwo = createPlayer('o');
 let boardElements = new Array(9).fill('');
-let currentPick = 'x';
+// let currentPlayer = 'x';
 const winningArray = [
   [0, 1, 2],
   [3, 4, 5],
@@ -100,13 +100,28 @@ function createPlayer(sign) {
 function startGame() {
   createBoard();
 }
+function setDisplayMsg(msg) {
+  const display = document.querySelector('.display');
+  display.textContent = msg;
+}
 function checkWin() {
+  // draw
+  // win
   for (let i = 0; i < winningArray.length; i++) {
     const newSet = new Set(winningArray[i].map((ind) => boardElements[ind]));
     const sign = [...newSet][0];
     if (newSet.size == 1 && (sign == 'x' || sign == 'o')) {
-      console.log(`${sign} win!`);
-      return;
+      isOver = true;
+      console.log(isOver);
+      setDisplayMsg(`${sign} win!`);
+      resetGame();
+    } else {
+      if (boardElements.every((elem) => elem != '')) {
+        isOver = true;
+        console.log(isOver);
+        setDisplayMsg("It's a tie!");
+        resetGame();
+      }
     }
   }
 }
@@ -120,7 +135,6 @@ function clearBoard() {
 // clear the board element array
 function clearBoardArr() {
   boardElements.fill('');
-  console.log(boardElements);
 }
 // create board
 function createBoard() {
@@ -132,39 +146,72 @@ function createBoard() {
     grid.appendChild(gridCell);
   }
 }
-function updateBoard() {
-  const cell = document.querySelectorAll('.board-cell');
-  boardElements[i] == 1
-    ? gridCell.classList.toggle('x')
-    : gridCell.classList.toggle('o');
+
+function renderBoard() {
+  const boardCell = document.querySelectorAll('.board-cell');
+  [...boardCell].forEach((elem, index) => {
+    elem.textContent = boardElements[index];
+    boardElements[index] == 'x'
+      ? elem.classList.toggle('x')
+      : elem.classList.toggle('o');
+  });
 }
 
-// start game
-startGame();
-document.addEventListener('click', (e) => {});
-document.addEventListener('click', (e) => {
-  if (e.target.className == 'board-cell') {
-    // userPick = 'x';
-    let ind = e.target.dataset.position;
-    boardElements[ind] = currentPick;
-    e.target.textContent = currentPick;
-    currentPick == 'x'
-      ? e.target.classList.toggle('x')
-      : e.target.classList.toggle('o');
-    checkWin();
+function playRound() {
+  const playerOne = createPlayer('x');
+  const playerTwo = createPlayer('o');
+  let currentPlayer = playerOne.sign;
+  let isOver = false;
+  function updateBoardArr(ind) {
+    boardElements[ind] = currentPlayer;
   }
 
-  if (e.target.className == 'control') {
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('board-cell')) {
+      // userPick = 'x';
+      let ind = e.target.dataset.position;
+      console.log(e.target.dataset.position);
+
+      updateBoardArr(ind);
+      renderBoard();
+      checkWin();
+      currentPlayer = currentPlayer == 'x' ? 'o' : 'x'; // update current player
+      console.log(currentPlayer);
+    }
+  });
+}
+function resetGame() {
+  const resetBtn = document.querySelector('.reset');
+  resetBtn.addEventListener('click', () => {
     clearBoard();
     clearBoardArr();
-  }
-});
+  });
+}
+// start game
+startGame();
+playRound();
+// document.addEventListener('click', (e) => {});
+// document.addEventListener('click', (e) => {
+//   if (e.target.classList.contains('board-cell')) {
+//     // userPick = 'x';
+//     let ind = e.target.dataset.position;
+//     console.log(e.target.dataset.position);
+//     updateBoardArr(ind);
+//     renderBoard();
+//     checkWin();
+//   }
 
-[...playerBtn].forEach((btn) =>
-  btn.addEventListener('click', (e) => {
-    currentPick = e.target.id;
-  })
-);
+//   if (e.target.className == 'control') {
+//     clearBoard();
+//     clearBoardArr();
+//   }
+// });
+
+// [...playerBtn].forEach((btn) =>
+//   btn.addEventListener('click', (e) => {
+//     currentPlayer = e.target.id;
+//   })
+// );
 
 // console.log(winningArray[0]);
 // console.log(test);
